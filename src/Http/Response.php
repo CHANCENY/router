@@ -22,6 +22,11 @@ class Response implements HttpResponseInterface
             header("$name: $value");
         }
         http_response_code($this->statusCode);
+
+        if (!empty($this->headers['Content-Type']) && $this->headers['Content-Type'] === 'application/json') {
+            $this->content = json_encode($this->content);
+        }
+
         echo $this->content;
         exit;
     }

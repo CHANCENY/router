@@ -1,0 +1,108 @@
+[
+    {
+        "id": 1,
+        "title": "Introduction to JSON",
+        "content": "JSON (JavaScript Object Notation) is a lightweight data-interchange format that is easy to read and write."
+    },
+    {
+        "id": 2,
+        "title": "Why Use JSON?",
+        "content": "JSON is widely used for data exchange because it is language-independent and easy to parse."
+    },
+    {
+        "id": 3,
+        "title": "JSON Syntax Rules",
+        "content": "JSON uses key-value pairs, arrays, and objects. Keys must be strings, and values can be strings, numbers, arrays, or other objects."
+    },
+    {
+        "id": 4,
+        "title": "Working with JSON in JavaScript",
+        "content": "JavaScript provides methods like JSON.parse() and JSON.stringify() to work with JSON data."
+    },
+    {
+        "id": 5,
+        "title": "REST APIs and JSON",
+        "content": "Most modern web APIs use JSON to send and receive data between clients and servers."
+    },
+    {
+        "id": 6,
+        "title": "Parsing JSON in Python",
+        "content": "Python has a built-in JSON module that allows parsing and manipulating JSON data with ease."
+    },
+    {
+        "id": 7,
+        "title": "JSON vs XML",
+        "content": "JSON is simpler and more lightweight compared to XML, making it the preferred choice for many applications."
+    },
+    {
+        "id": 8,
+        "title": "JSON Data Types",
+        "content": "JSON supports strings, numbers, objects, arrays, booleans, and null values."
+    },
+    {
+        "id": 9,
+        "title": "JSON Schema",
+        "content": "JSON Schema defines the structure of JSON data and is used for validation."
+    },
+    {
+        "id": 10,
+        "title": "Handling JSON Errors",
+        "content": "JSON parsers often throw errors if the syntax is incorrect, so always validate JSON before use.",
+        "image": "https:\/\/cdn.prod.website-files.com\/62d84e447b4f9e7263d31e94\/6399a4d27711a5ad2c9bf5cd_ben-sweet-2LowviVHZ-E-unsplash-1.jpeg"
+    },
+    {
+        "id": 11,
+        "title": "Nested JSON Objects",
+        "content": "JSON allows nesting objects within objects, making it flexible for complex data structures."
+    },
+    {
+        "id": 12,
+        "title": "JSON and Local Storage",
+        "content": "Web browsers support storing JSON data in localStorage for client-side persistence."
+    },
+    {
+        "id": 13,
+        "title": "Fetching JSON from APIs",
+        "content": "Using fetch() in JavaScript, you can retrieve JSON data from an API."
+    },
+    {
+        "id": 14,
+        "title": "Serializing JSON in Python",
+        "content": "Python\u2019s json.dumps() method converts Python objects into JSON strings."
+    },
+    {
+        "id": 15,
+        "title": "Working with Large JSON Files updated 2",
+        "content": "For large JSON files, use streaming parsers or databases optimized for JSON storage."
+    },
+    {
+        "id": 16,
+        "title": "Minifying JSON",
+        "content": "JSON can be minified by removing unnecessary whitespace, reducing file size."
+    },
+    {
+        "id": 17,
+        "title": "Pretty Printing JSON",
+        "content": "Pretty-printing JSON makes it easier to read by formatting it with indentation."
+    },
+    {
+        "id": 18,
+        "title": "Converting JSON to CSV",
+        "content": "JSON data can be converted to CSV for use in spreadsheets and data analysis."
+    },
+    {
+        "id": 19,
+        "title": "JSON Web Tokens (JWT)",
+        "content": "JWT is a JSON-based standard for creating access tokens used in authentication."
+    },
+    {
+        "id": 20,
+        "title": "GraphQL vs JSON REST APIs",
+        "content": "GraphQL provides more flexibility than traditional JSON REST APIs by allowing clients to specify the data they need."
+    },
+    {
+        "title": "Online learning is better than classroom learning. Do you agree or disagree",
+        "content": "In recent years online class has been a pillar of children's education, this was caused by world-wide lock down due corona virus. This led to massive use of online learning, which has brought up questions whether online learning is good or bad. I agree to the goodness of online in the following areas.",
+        "id": 1738660734
+    }
+]

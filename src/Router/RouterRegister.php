@@ -197,10 +197,9 @@ class RouterRegister implements RouteInterface
                     $type = trim(end($list), ']');
                     $key = trim($list[0], '[');
                     $value = urldecode($current_list[$i]);
-
                     try{
                         // In case the params is of class.
-                        if(class_exists(end($list))) {
+                        if(class_exists($type)) {
                             $params[$key] = new ($type)($value);
                         }
                         else {
@@ -226,4 +225,28 @@ class RouterRegister implements RouteInterface
         }
         return false;
     }
+
+    public function any(string $path, string $route_name, RouteEntryController $controller, array $options)
+    {
+        if ($this->routeMath($path)) {
+
+            $request = new Request();
+
+            // Handle pre_controller_middleware
+            $pre_middlewares = $options['pre_middlewares'] ?? [];
+            foreach ($pre_middlewares as $pre_middleware) {
+                new $pre_middleware($request);
+            }
+
+            $controller_response = $controller->entry(request: $request, route_name: $route_name);
+
+            $post_middlewares = $options['post_middlewares'] ?? [];
+            foreach ($post_middlewares as $post_middleware) {
+                new $post_middleware(request: $request, response: $controller_response);
+            }
+
+            $controller_response->send();
+        }
+    }
+
 }
