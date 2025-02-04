@@ -13,8 +13,5 @@
             "name": "CHANCENY",
             "email": "nyasuluchance6@gmail.com"
         }
-    ],
-    "require": {
-        "symfony/var-dumper": "^7.2"
-    }
+    ]
 }
