@@ -19,30 +19,30 @@ class Route
     }
 
     public static function get(string $path, string $route_name, $controller, array $options = []): void {
-        new RouterRegister()->get($path, $route_name, self::entry($controller), $options);
+        (new RouterRegister())->get($path, $route_name, self::entry($controller), $options);
     }
 
     public static function post(string $path, string $route_name, $controller, array $options = []): void {
-        new RouterRegister()->post($path, $route_name, self::entry($controller), $options);
+        (new RouterRegister())->post($path, $route_name, self::entry($controller), $options);
     }
 
     public static function put(string $path, string $route_name, $controller, array $options = []): void {
-        new RouterRegister()->put($path, $route_name, self::entry($controller), $options);
+        (new RouterRegister())->put($path, $route_name, self::entry($controller), $options);
     }
 
     public static function delete(string $path, string $route_name, $controller, array $options = []): void {
-        new RouterRegister()->delete($path, $route_name, self::entry($controller), $options);
+        (new RouterRegister())->delete($path, $route_name, self::entry($controller), $options);
     }
 
     public static function options(string $path, string $route_name, $controller, array $options = []): void {
-        new RouterRegister()->options($path, $route_name, self::entry($controller), $options);
+        (new RouterRegister())->options($path, $route_name, self::entry($controller), $options);
     }
 
     public static function patch(string $path, string $route_name, $controller, array $options = []): void {
-        new RouterRegister()->patch($path, $route_name, self::entry($controller), $options);
+        (new RouterRegister())->patch($path, $route_name, self::entry($controller), $options);
     }
 
     public static function any(string $path, string $route_name, $controller, array $options = []): void {
-        new RouterRegister()->any($path, $route_name, self::entry($controller), $options);
+        (new RouterRegister())->any($path, $route_name, self::entry($controller), $options);
     }
 }
