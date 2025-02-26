@@ -2,7 +2,11 @@
 
 namespace Simp\Router\Router;
 
-use Simp\Router\Http\Request;
+
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class RouterRegister implements RouteInterface
 {
@@ -10,162 +14,111 @@ class RouterRegister implements RouteInterface
 
     public function __construct()
     {
-        $this->request = new Request();
+        $this->request = Request::createFromGlobals();
     }
 
-    public function get(string $path, string $route_name, RouteEntryController $controller, array $options = []): void
+    /**
+     * @throws NotFoundException
+     */
+    protected function handlerController($route_name, $controller, $options): void
     {
-        if ($this->request->server->getMethod() == 'GET') {
+        $request = Request::createFromGlobals();
+
+        $controller_method = $options['controller_method'] ?? $route_name;
+        if (!is_callable([$controller, $controller_method])) {
+            throw new NotFoundException("controller method '$controller_method' not defined");
+        }
+
+        // Handle pre_controller_middleware
+        $pre_middlewares = $options['pre_middlewares'] ?? [];
+        foreach ($pre_middlewares as $pre_middleware) {
+            new $pre_middleware($request);
+        }
+
+        /**@var Response|RedirectResponse|JsonResponse $controller_response **/
+        $controller_response = $controller->$controller_method(request: $request, route_name: $route_name);
+        $post_middlewares = $options['post_middlewares'] ?? [];
+        foreach ($post_middlewares as $post_middleware) {
+            new $post_middleware(request: $request, response: $controller_response);
+        }
+        $controller_response->send(true);
+    }
+
+    /**
+     * @throws NotFoundException
+     */
+    public function get(string $path, string $route_name, object $controller, array $options = []): void
+    {
+        if ($this->request->getMethod() == 'GET') {
             if ($this->routeMath($path)) {
-
-                $request = new Request();
-
-                // Handle pre_controller_middleware
-                $pre_middlewares = $options['pre_middlewares'] ?? [];
-                foreach ($pre_middlewares as $pre_middleware) {
-                    new $pre_middleware($request);
-                }
-
-                $controller_response = $controller->entry(request: $request, route_name: $route_name);
-
-                $post_middlewares = $options['post_middlewares'] ?? [];
-                foreach ($post_middlewares as $post_middleware) {
-                    new $post_middleware(request: $request, response: $controller_response);
-                }
-
-                $controller_response->send();
+                $this->handlerController($route_name,$controller,$options);
             }
         }
     }
 
-    public function post(string $path, string $route_name, RouteEntryController $controller, array $options = []): void
+    /**
+     * @throws NotFoundException
+     */
+    public function post(string $path, string $route_name, object $controller, array $options = []): void
     {
-        if ($this->request->server->getMethod() == 'POST') {
+        if ($this->request->getMethod() == 'POST') {
             if ($this->routeMath($path)) {
-
-                $request = new Request();
-
-                // Handle pre_controller_middleware
-                $pre_middlewares = $options['pre_middlewares'] ?? [];
-                foreach ($pre_middlewares as $pre_middleware) {
-                    new $pre_middleware($request);
-                }
-
-                $controller_response = $controller->entry(request: $request, route_name: $route_name);
-
-                $post_middlewares = $options['post_middlewares'] ?? [];
-                foreach ($post_middlewares as $post_middleware) {
-                    new $post_middleware(request: $request, response: $controller_response);
-                }
-
-                $controller_response->send();
+                $this->handlerController($route_name,$controller,$options);
             }
         }
     }
 
-    public function put(string $path, string $route_name, RouteEntryController $controller, array $options = []): void
+    /**
+     * @throws NotFoundException
+     */
+    public function put(string $path, string $route_name, object $controller, array $options = []): void
     {
-        if ($this->request->server->getMethod() == 'PUT') {
+        if ($this->request->getMethod() == 'PUT') {
             if ($this->routeMath($path)) {
-
-                $request = new Request();
-
-                // Handle pre_controller_middleware
-                $pre_middlewares = $options['pre_middlewares'] ?? [];
-                foreach ($pre_middlewares as $pre_middleware) {
-                    new $pre_middleware($request);
-                }
-
-                $controller_response = $controller->entry(request: $request, route_name: $route_name);
-
-                $post_middlewares = $options['post_middlewares'] ?? [];
-                foreach ($post_middlewares as $post_middleware) {
-                    new $post_middleware(request: $request, response: $controller_response);
-                }
-
-                $controller_response->send();
+                $this->handlerController($route_name,$controller,$options);
             }
         }
     }
 
-    public function delete(string $path, string $route_name, RouteEntryController $controller, array $options = []): void
+    /**
+     * @throws NotFoundException
+     */
+    public function delete(string $path, string $route_name, object $controller, array $options = []): void
     {
-        if ($this->request->server->getMethod() == 'DELETE') {
+        if ($this->request->getMethod() == 'DELETE') {
             if ($this->routeMath($path)) {
-
-                $request = new Request();
-
-                // Handle pre_controller_middleware
-                $pre_middlewares = $options['pre_middlewares'] ?? [];
-                foreach ($pre_middlewares as $pre_middleware) {
-                    new $pre_middleware($request);
-                }
-
-                $controller_response = $controller->entry(request: $request, route_name: $route_name);
-
-                $post_middlewares = $options['post_middlewares'] ?? [];
-                foreach ($post_middlewares as $post_middleware) {
-                    new $post_middleware(request: $request, response: $controller_response);
-                }
-
-                $controller_response->send();
+                $this->handlerController($route_name,$controller,$options);
             }
         }
     }
 
-    public function options(string $path, string $route_name, RouteEntryController $controller, array $options = []): void
+    /**
+     * @throws NotFoundException
+     */
+    public function options(string $path, string $route_name, object $controller, array $options = []): void
     {
-        if ($this->request->server->getMethod() == 'OPTIONS') {
+        if ($this->request->getMethod() == 'OPTIONS') {
             if ($this->routeMath($path)) {
-
-                $request = new Request();
-
-                // Handle pre_controller_middleware
-                $pre_middlewares = $options['pre_middlewares'] ?? [];
-                foreach ($pre_middlewares as $pre_middleware) {
-                    new $pre_middleware($request);
-                }
-
-                $controller_response = $controller->entry(request: $request, route_name: $route_name);
-
-                $post_middlewares = $options['post_middlewares'] ?? [];
-                foreach ($post_middlewares as $post_middleware) {
-                    new $post_middleware(request: $request, response: $controller_response);
-                }
-
-                $controller_response->send();
+                $this->handlerController($route_name,$controller,$options);
             }
         }
     }
 
-    public function patch(string $path, string $route_name, RouteEntryController $controller, array $options = []): void
+    /**
+     * @throws NotFoundException
+     */
+    public function patch(string $path, string $route_name, object $controller, array $options = []): void
     {
-        if ($this->request->server->getMethod() == 'PATCH') {
+        if ($this->request->getMethod() == 'PATCH') {
             if ($this->routeMath($path)) {
-
-                $request = new Request();
-
-                // Handle pre_controller_middleware
-                $pre_middlewares = $options['pre_middlewares'] ?? [];
-                foreach ($pre_middlewares as $pre_middleware) {
-                    new $pre_middleware($request);
-                }
-
-                $controller_response = $controller->entry(request: $request, route_name: $route_name);
-
-                $post_middlewares = $options['post_middlewares'] ?? [];
-                foreach ($post_middlewares as $post_middleware) {
-                    new $post_middleware(request: $request, response: $controller_response);
-                }
-
-                $controller_response->send();
+                $this->handlerController($route_name,$controller,$options);
             }
         }
     }
 
     private function routeMath(string $path): bool
     {
-        $uri = $this->request->server->getUri();
+        $uri = $this->request->getUri();
         $path_uri = parse_url($uri, PHP_URL_PATH);
         // Simple way
         $pattern_list = explode('/', $path);
@@ -226,26 +179,13 @@ class RouterRegister implements RouteInterface
         return false;
     }
 
-    public function any(string $path, string $route_name, RouteEntryController $controller, array $options)
+    /**
+     * @throws NotFoundException
+     */
+    public function any(string $path, string $route_name, object $controller, array $options)
     {
         if ($this->routeMath($path)) {
-
-            $request = new Request();
-
-            // Handle pre_controller_middleware
-            $pre_middlewares = $options['pre_middlewares'] ?? [];
-            foreach ($pre_middlewares as $pre_middleware) {
-                new $pre_middleware($request);
-            }
-
-            $controller_response = $controller->entry(request: $request, route_name: $route_name);
-
-            $post_middlewares = $options['post_middlewares'] ?? [];
-            foreach ($post_middlewares as $post_middleware) {
-                new $post_middleware(request: $request, response: $controller_response);
-            }
-
-            $controller_response->send();
+            $this->handlerController($route_name,$controller,$options);
         }
     }
 

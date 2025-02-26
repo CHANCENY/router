@@ -13,5 +13,8 @@
             "name": "CHANCENY",
             "email": "nyasuluchance6@gmail.com"
         }
-    ]
+    ],
+    "require": {
+        "symfony/http-foundation": "^7.2"
+    }
 }
