@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RouterRegister implements RouteInterface
 {
-    private Request $request;
+    protected Request $request;
 
     public function __construct()
     {
