@@ -150,6 +150,7 @@ class RouterRegister implements RouteInterface
                     $type = trim(end($list), ']');
                     $key = trim($list[0], '[');
                     $value = urldecode($current_list[$i]);
+
                     try{
                         // In case the params is of class.
                         if(class_exists($type)) {
@@ -162,7 +163,15 @@ class RouterRegister implements RouteInterface
                             $params[$key] =  function_exists($function) ? $function($value) : $value;
                         }
 
-                        $checked_flags[] = true;
+                        if (($type === 'int' || $type === 'float' || $type === 'double') && is_numeric($current_list[$i])) {
+                            $checked_flags[] = true;
+                        }
+                        elseif ($type === 'bool' && is_bool($params[$key])) {
+                            $checked_flags[] = true;
+                        }
+                        elseif (class_exists($type) && $params[$key] instanceof $type) {
+                            $checked_flags[] = true;
+                        }
                     }catch (\Throwable $exception){
                         continue;
                     }
@@ -171,6 +180,7 @@ class RouterRegister implements RouteInterface
 
             }
 
+            $checked_flags = array_filter($checked_flags);
             if (count($checked_flags) == count($pattern_list)) {
                 $_GET = array_merge($_GET, $params);
                 return true;
