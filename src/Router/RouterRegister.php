@@ -172,6 +172,9 @@ class RouterRegister implements RouteInterface
                         elseif (class_exists($type) && $params[$key] instanceof $type) {
                             $checked_flags[] = true;
                         }
+                        elseif ($type === 'string' && is_string($current_list[$i])) {
+                            $checked_flags[] = true;
+                        }
                     }catch (\Throwable $exception){
                         continue;
                     }
