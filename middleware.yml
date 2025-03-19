@@ -1,0 +1,4 @@
+# middlewares to be used.
+access:
+  - ExampleMiddleware
+ 

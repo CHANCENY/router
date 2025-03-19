@@ -2,19 +2,41 @@
 
 namespace Simp\Router\Router;
 
-
+use Simp\Router\middleware\access\Access;
+use Simp\Router\middleware\interface\Middleware;
+use Simp\Router\middleware\MiddlewareStack;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Yaml\Yaml;
 
 class RouterRegister implements RouteInterface
 {
     protected Request $request;
 
-    public function __construct()
+    protected MiddlewareStack $access_middleware_stack;
+
+    public function __construct(?string $middleware_register = null)
     {
         $this->request = Request::createFromGlobals();
+        $this->access_middleware_stack = new MiddlewareStack;
+        if(!is_null($middleware_register) && file_exists($middleware_register) && str_ends_with($middleware_register, '.yml')) {
+            $middlewares = Yaml::parseFile($middleware_register);
+            if (!empty($middlewares['access']) && is_array($middlewares['access'])) {
+                foreach($middlewares['access'] as $middle) {
+                    if (class_exists($middle)) {
+
+                        // Make object.
+                        $middle = new $middle();
+                        if ($middle instanceof Middleware) {
+                            $this->access_middleware_stack->add($middle);
+                        }
+                    }
+                }
+            }
+
+        }
     }
 
     /**
@@ -30,17 +52,23 @@ class RouterRegister implements RouteInterface
         }
 
         // Handle pre_controller_middleware
-        $pre_middlewares = $options['pre_middlewares'] ?? [];
-        foreach ($pre_middlewares as $pre_middleware) {
-            new $pre_middleware($request);
-        }
+        $access = new Access;
+        $access->options['controller'] = $controller;
+        $access->options['method'] = $controller_method;
+        $access->options['options'] = $options;
 
+        $result = $this->access_middleware_stack->handle($request, $access);
+        $access = $result['access'] ?? null;
+        if($access instanceof Access) {
+            if (!$access->access_granted) {
+                $response = $access->response ?? $access->redirect ?? null;
+                $response?->send() ?? die("You are not authorized to access this page.");
+                exit;
+            }
+        }
+        
         /**@var Response|RedirectResponse|JsonResponse $controller_response **/
         $controller_response = $controller->$controller_method(request: $request, route_name: $route_name);
-        $post_middlewares = $options['post_middlewares'] ?? [];
-        foreach ($post_middlewares as $post_middleware) {
-            new $post_middleware(request: $request, response: $controller_response);
-        }
         $controller_response->send(true);
     }
 

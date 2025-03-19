@@ -8,24 +8,31 @@ use Simp\Router\Route;
 
 require_once "Example.php";
 require_once "Help.php";
+require_once "ExampleMiddleware.php";
 
-Route::get("/","index",Example::class);
 
-Route::get("/api/help-document/[help_title:".Help::class."]","api_help",Example::class . "@help");
+// Make the middleware_register_file where you can declare middlewares.
+$middleware_register_file = __DIR__ . '/middleware.yml';
 
-Route::get("/api/posts","posts",Example::class . "@posts");
+$route = new Route($middleware_register_file);
 
-Route::get("/api/post/[id:int]","post",Example::class. "@post");
+$route->get("/","index",Example::class);
 
-Route::post("/api/post","post_create",Example::class . "@post_create");
+$route->get("/api/help-document/[help_title:".Help::class."]","api_help",Example::class . "@help");
 
-Route::delete("/api/post/[id:int]","post_delete",Example::class . "@post_delete");
+$route->get("/api/posts","posts",Example::class . "@posts");
 
-Route::put("/api/post/[id:int]","post_update",Example::class);
+$route->get("/api/post/[id:int]","post",Example::class. "@post");
 
-Route::get("/api/posts/search/[title]","post_search",Example::class);
+$route->post("/api/post","post_create",Example::class . "@post_create");
 
-Route::get("/api/post/[id:int]/image","post_image",Example::class);
+$route->delete("/api/post/[id:int]","post_delete",Example::class . "@post_delete");
+
+$route->put("/api/post/[id:int]","post_update",Example::class);
+
+$route->get("/api/posts/search/[title]","post_search",Example::class);
+
+$route->get("/api/post/[id:int]/image","post_image",Example::class);
 
 
 
