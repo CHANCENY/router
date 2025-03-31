@@ -68,7 +68,7 @@ class RouterRegister implements RouteInterface
         }
         
         /**@var Response|RedirectResponse|JsonResponse $controller_response **/
-        $controller_response = $controller->$controller_method(request: $request, route_name: $route_name);
+        $controller_response = $controller->$controller_method(request: $request, route_name: $route_name, options: $options);
         $controller_response->send(true);
     }
 
