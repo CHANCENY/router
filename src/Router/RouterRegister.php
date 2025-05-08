@@ -42,7 +42,7 @@ class RouterRegister implements RouteInterface
     /**
      * @throws NotFoundException
      */
-    protected function handlerController($route_name, $controller, $options): void
+    protected function handlerController($route_name, $controller, $options): Response|JsonResponse|RedirectResponse
     {
         $request = Request::createFromGlobals();
 
@@ -62,86 +62,91 @@ class RouterRegister implements RouteInterface
         if($access instanceof Access) {
             if (!$access->access_granted) {
                 $response = $access->response ?? $access->redirect ?? null;
-                $response?->send() ?? die("You are not authorized to access this page.");
-                exit;
+                return $response;
             }
         }
         
         /**@var Response|RedirectResponse|JsonResponse $controller_response **/
         $controller_response = $controller->$controller_method(request: $request, route_name: $route_name, options: $options);
-        $controller_response->send(true);
+        return $controller_response;
     }
 
     /**
      * @throws NotFoundException
      */
-    public function get(string $path, string $route_name, object $controller, array $options = []): void
+    public function get(string $path, string $route_name, object $controller, array $options = []): Response|JsonResponse|RedirectResponse|null
     {
         if ($this->request->getMethod() == 'GET') {
             if ($this->routeMath($path)) {
-                $this->handlerController($route_name,$controller,$options);
+                return $this->handlerController($route_name,$controller,$options);
             }
         }
+        return null;
     }
 
     /**
      * @throws NotFoundException
      */
-    public function post(string $path, string $route_name, object $controller, array $options = []): void
+    public function post(string $path, string $route_name, object $controller, array $options = []): Response|JsonResponse|RedirectResponse|null
     {
         if ($this->request->getMethod() == 'POST') {
             if ($this->routeMath($path)) {
-                $this->handlerController($route_name,$controller,$options);
+                return $this->handlerController($route_name,$controller,$options);
             }
         }
+        return null;
     }
 
     /**
      * @throws NotFoundException
      */
-    public function put(string $path, string $route_name, object $controller, array $options = []): void
+    public function put(string $path, string $route_name, object $controller, array $options = []): Response|JsonResponse|RedirectResponse|null
     {
         if ($this->request->getMethod() == 'PUT') {
             if ($this->routeMath($path)) {
-                $this->handlerController($route_name,$controller,$options);
+                return $this->handlerController($route_name,$controller,$options);
             }
         }
+        return null;
     }
 
     /**
      * @throws NotFoundException
      */
-    public function delete(string $path, string $route_name, object $controller, array $options = []): void
+    public function delete(string $path, string $route_name, object $controller, array $options = []): Response|JsonResponse|RedirectResponse|null
     {
         if ($this->request->getMethod() == 'DELETE') {
             if ($this->routeMath($path)) {
-                $this->handlerController($route_name,$controller,$options);
+                return $this->handlerController($route_name,$controller,$options);
             }
         }
+        return null;
     }
 
     /**
      * @throws NotFoundException
      */
-    public function options(string $path, string $route_name, object $controller, array $options = []): void
+    public function options(string $path, string $route_name, object $controller, array $options = []): Response|JsonResponse|RedirectResponse|null
     {
         if ($this->request->getMethod() == 'OPTIONS') {
             if ($this->routeMath($path)) {
-                $this->handlerController($route_name,$controller,$options);
+                return $this->handlerController($route_name,$controller,$options);
             }
         }
+        return null;
     }
 
     /**
      * @throws NotFoundException
      */
-    public function patch(string $path, string $route_name, object $controller, array $options = []): void
+    public function patch(string $path, string $route_name, object $controller, array $options = []): Response|JsonResponse|RedirectResponse|null
     {
         if ($this->request->getMethod() == 'PATCH') {
             if ($this->routeMath($path)) {
-                $this->handlerController($route_name,$controller,$options);
+                return $this->handlerController($route_name,$controller,$options);
             }
         }
+        return null;
     }
 
     private function routeMath(string $path): bool
@@ -223,11 +228,12 @@ class RouterRegister implements RouteInterface
     /**
      * @throws NotFoundException
      */
-    public function any(string $path, string $route_name, object $controller, array $options)
+    public function any(string $path, string $route_name, object $controller, array $options): Response|JsonResponse|RedirectResponse|null
     {
         if ($this->routeMath($path)) {
-            $this->handlerController($route_name,$controller,$options);
+            return $this->handlerController($route_name,$controller,$options);
         }
+        return null;       
     }
 
 }
