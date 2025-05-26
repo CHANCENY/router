@@ -65,6 +65,8 @@ class RouterRegister implements RouteInterface
                 return $response;
             }
         }
+
+        $GLOBALS['_SERVER']['ROUTE_ATTRIBUTES'] = $options;
         
         /**@var Response|RedirectResponse|JsonResponse $controller_response **/
         $controller_response = $controller->$controller_method(request: $request, route_name: $route_name, options: $options);
