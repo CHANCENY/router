@@ -12,7 +12,7 @@ class Route
 {
     protected RouterRegister $router_register;
 
-    public function __construct(?string $middleware_register_file = null)
+    public function __construct(string|array|null $middleware_register_file = null)
     {
         $this->router_register = new RouterRegister($middleware_register_file);
     }

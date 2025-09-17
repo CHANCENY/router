@@ -17,27 +17,40 @@ class RouterRegister implements RouteInterface
 
     protected MiddlewareStack $access_middleware_stack;
 
-    public function __construct(?string $middleware_register = null)
+    public function __construct(string|array|null $middleware_register = null)
     {
         $this->request = Request::createFromGlobals();
         $this->access_middleware_stack = new MiddlewareStack;
-        if(!is_null($middleware_register) && file_exists($middleware_register) && str_ends_with($middleware_register, '.yml')) {
-            $middlewares = Yaml::parseFile($middleware_register);
-            if (!empty($middlewares['access']) && is_array($middlewares['access'])) {
-                foreach($middlewares['access'] as $middle) {
-                    if (class_exists($middle)) {
 
-                        // Make object.
-                        $middle = new $middle();
-                        if ($middle instanceof Middleware) {
-                            $this->access_middleware_stack->add($middle);
+        if (is_string($middleware_register)) {
+            // Case 1: YAML file path
+            if (file_exists($middleware_register) && str_ends_with($middleware_register, '.yml')) {
+                $middlewares = Yaml::parseFile($middleware_register);
+
+                if (!empty($middlewares['access']) && is_array($middlewares['access'])) {
+                    foreach ($middlewares['access'] as $middle) {
+                        if (class_exists($middle)) {
+                            $instance = new $middle();
+                            if ($instance instanceof Middleware) {
+                                $this->access_middleware_stack->add($instance);
+                            }
                         }
                     }
                 }
             }
-
+        } elseif (is_array($middleware_register)) {
+            // Case 2: Directly passed array of middleware classes
+            foreach ($middleware_register as $middle) {
+                if (class_exists($middle)) {
+                    $instance = new $middle();
+                    if ($instance instanceof Middleware) {
+                        $this->access_middleware_stack->add($instance);
+                    }
+                }
+            }
         }
     }
+
 
     /**
      * @throws NotFoundException
