@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class Access {
 
-    public bool $access_granted = false;
+    public bool $access_granted = true;
 
     public RedirectResponse $redirect;
 
