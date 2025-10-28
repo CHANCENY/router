@@ -55,7 +55,7 @@ interface RouteInterface
     public function options(string $path, string $route_name, object $controller, array $options = []);
 
     /**
-     * Set up PATCH route
+     * Set up the PATCH route
      * @param string $path
      * @param string $route_name
      * @param object $controller
@@ -63,4 +63,6 @@ interface RouteInterface
      * @return mixed
      */
     public function patch(string $path, string $route_name, object $controller, array $options = []);
+
+    public function send();
 }

@@ -9,7 +9,7 @@ class ExampleMiddleware implements Middleware {
 
     public function __invoke(Request $request, Access $access, $next)
     {
-        $access->access_granted = false;
+        $access->access_granted = true;
         return $next($request,$access);
     }
 }

@@ -2,18 +2,17 @@
 
 namespace Simp\Router\Router;
 
+use GuzzleHttp\Psr7\HttpFactory;
 use Simp\Router\middleware\access\Access;
 use Simp\Router\middleware\interface\Middleware;
 use Simp\Router\middleware\MiddlewareStack;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Yaml\Yaml;
 
 class RouterRegister implements RouteInterface
 {
     protected Request $request;
+    protected mixed $controllerResponse;
 
     protected MiddlewareStack $access_middleware_stack;
 
@@ -50,12 +49,11 @@ class RouterRegister implements RouteInterface
             }
         }
     }
-
-
+    
     /**
      * @throws NotFoundException
      */
-    protected function handlerController($route_name, $controller, $options): Response|JsonResponse|RedirectResponse
+    protected function handlerController($route_name, $controller, $options)
     {
         $request = Request::createFromGlobals();
 
@@ -71,97 +69,89 @@ class RouterRegister implements RouteInterface
         $access->options['options'] = $options;
 
         $result = $this->access_middleware_stack->handle($request, $access);
+
         $access = $result['access'] ?? null;
         if($access instanceof Access) {
             if (!$access->access_granted) {
-                $response = $access->response ?? $access->redirect ?? null;
-                return $response;
+                return $access->response ?? $access->redirect ?? null;
             }
         }
 
         $GLOBALS['_SERVER']['ROUTE_ATTRIBUTES'] = $options;
-        
-        /**@var Response|RedirectResponse|JsonResponse $controller_response **/
-        $controller_response = $controller->$controller_method(request: $request, route_name: $route_name, options: $options);
-        return $controller_response;
+
+        return $controller->$controller_method(request: $request, route_name: $route_name, options: $options);
     }
 
     /**
      * @throws NotFoundException
      */
-    public function get(string $path, string $route_name, object $controller, array $options = []): Response|JsonResponse|RedirectResponse|null
+    public function get(string $path, string $route_name, object $controller, array $options = [])
     {
         if ($this->request->getMethod() == 'GET') {
             if ($this->routeMath($path)) {
-                return $this->handlerController($route_name,$controller,$options);
+                $this->controllerResponse = $this->handlerController($route_name,$controller,$options);
             }
         }
-        return null;
     }
 
     /**
      * @throws NotFoundException
      */
-    public function post(string $path, string $route_name, object $controller, array $options = []): Response|JsonResponse|RedirectResponse|null
+    public function post(string $path, string $route_name, object $controller, array $options = [])
     {
         if ($this->request->getMethod() == 'POST') {
             if ($this->routeMath($path)) {
-                return $this->handlerController($route_name,$controller,$options);
+                $this->controllerResponse = $this->handlerController($route_name,$controller,$options);
             }
         }
-        return null;
     }
 
     /**
      * @throws NotFoundException
      */
-    public function put(string $path, string $route_name, object $controller, array $options = []): Response|JsonResponse|RedirectResponse|null
+    public function put(string $path, string $route_name, object $controller, array $options = [])
     {
         if ($this->request->getMethod() == 'PUT') {
             if ($this->routeMath($path)) {
-                return $this->handlerController($route_name,$controller,$options);
+                $this->controllerResponse = $this->handlerController($route_name,$controller,$options);
             }
         }
-        return null;
     }
 
     /**
      * @throws NotFoundException
      */
-    public function delete(string $path, string $route_name, object $controller, array $options = []): Response|JsonResponse|RedirectResponse|null
+    public function delete(string $path, string $route_name, object $controller, array $options = [])
     {
         if ($this->request->getMethod() == 'DELETE') {
             if ($this->routeMath($path)) {
-                return $this->handlerController($route_name,$controller,$options);
+                $this->controllerResponse = $this->handlerController($route_name,$controller,$options);
             }
         }
-        return null;
     }
 
     /**
      * @throws NotFoundException
      */
-    public function options(string $path, string $route_name, object $controller, array $options = []): Response|JsonResponse|RedirectResponse|null
+    public function options(string $path, string $route_name, object $controller, array $options = [])
     {
         if ($this->request->getMethod() == 'OPTIONS') {
             if ($this->routeMath($path)) {
-                return $this->handlerController($route_name,$controller,$options);
+                $this->controllerResponse = $this->handlerController($route_name,$controller,$options);
             }
         }
-        return null;
     }
 
     /**
      * @throws NotFoundException
      */
-    public function patch(string $path, string $route_name, object $controller, array $options = []): Response|JsonResponse|RedirectResponse|null
+    public function patch(string $path, string $route_name, object $controller, array $options = [])
     {
         if ($this->request->getMethod() == 'PATCH') {
             if ($this->routeMath($path)) {
-                return $this->handlerController($route_name,$controller,$options);
+                $this->controllerResponse = $this->handlerController($route_name,$controller,$options);
             }
         }
-        return null;
     }
 
     private function routeMath(string $path): bool
@@ -243,12 +233,71 @@ class RouterRegister implements RouteInterface
     /**
      * @throws NotFoundException
      */
-    public function any(string $path, string $route_name, object $controller, array $options): Response|JsonResponse|RedirectResponse|null
+    public function any(string $path, string $route_name, object $controller, array $options)
     {
         if ($this->routeMath($path)) {
-            return $this->handlerController($route_name,$controller,$options);
+            $this->controllerResponse = $this->handlerController($route_name,$controller,$options);
         }
-        return null;       
+    }
+
+    public function send()
+    {
+        $response = $this->controllerResponse;
+
+        // Case 1: Response is a plain string
+        if (is_string($response)) {
+            echo $response;
+            return $response;
+        }
+
+        // Case 2: Response is an object (Symfony or PSR-7)
+        if (is_object($response)) {
+
+            // ✅ Symfony Response
+            if ($response instanceof \Symfony\Component\HttpFoundation\Response) {
+                $response->send();
+                return $response;
+            }
+
+            // ✅ PSR-7 Response (Guzzle, Nyholm, Laminas, etc.)
+            if ($response instanceof \Psr\Http\Message\ResponseInterface) {
+                // Send status line
+                header(sprintf(
+                    'HTTP/%s %d %s',
+                    $response->getProtocolVersion(),
+                    $response->getStatusCode(),
+                    $response->getReasonPhrase()
+                ));
+
+                // Send headers
+                foreach ($response->getHeaders() as $name => $values) {
+                    foreach ($values as $value) {
+                        header("$name: $value", false);
+                    }
+                }
+
+                // Send body
+                $body = $response->getBody();
+                if ($body->isSeekable()) {
+                    $body->rewind();
+                }
+
+                while (!$body->eof()) {
+                    echo $body->read(8192);
+                }
+
+                return $response;
+            }
+
+            // Unsupported object type
+            throw new \InvalidArgumentException(sprintf(
+                'Unsupported response object of type %s. Expected string, Symfony Response, or PSR-7 ResponseInterface.',
+                get_class($response)
+            ));
+        }
+
+        // Case 3: Invalid type
+        throw new \InvalidArgumentException('Controller response must be a string or a supported response object.');
     }
 
 }

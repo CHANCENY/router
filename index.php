@@ -1,6 +1,8 @@
 <?php
 
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 require_once "vendor/autoload.php";
 
@@ -33,6 +35,8 @@ $route->put("/api/post/[id:int]","post_update",Example::class);
 $route->get("/api/posts/search/[title]","post_search",Example::class);
 
 $route->get("/api/post/[id:int]/image","post_image",Example::class);
+
+$route->send(\GuzzleHttp\Psr7\Response::class);
 
 
 

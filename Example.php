@@ -13,7 +13,7 @@ class Example
         $this->posts = json_decode(file_get_contents(__DIR__ . '/posts.json'), true);
     }
 
-    function index(...$args): object
+    function index(...$args): Response
     {
         return new Response("<h1>Post Simple Api</h1>");
     }
