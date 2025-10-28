@@ -123,7 +123,7 @@ class Route
         $this->router_register->any($path, $route_name, self::entry($controller), $options);
     }
 
-    public function send(string $psr7ResponseClass, int $override_status_code = 200, array $override_headers = []) {
-        $this->router_register->send($psr7ResponseClass, $override_status_code, $override_headers);
+    public function send() {
+        $this->router_register->send();
     }
 }
